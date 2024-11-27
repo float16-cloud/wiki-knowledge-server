@@ -35,6 +35,14 @@ Everytime you initialize the server, The server need to load the model from stor
 
 This process will take time.
 
+CUVS installation:
+
+```
+pip install \
+    --extra-index-url=https://pypi.nvidia.com \
+    "cudf-cu12==24.10.*" "cuvs-cu12==24.10.*"
+```
+
 ## How it works
 
 ### Prepare wiki data
