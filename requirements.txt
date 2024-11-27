@@ -1,0 +1,7 @@
+accelerate==0.27.2
+huggingface-hub==0.20.3
+onnx==1.15.0
+onnxruntime==1.17.0
+optimum==1.17.0
+torch==2.2.0
+transformers==4.37.2
