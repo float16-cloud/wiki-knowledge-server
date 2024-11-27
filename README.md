@@ -1,5 +1,12 @@
 # Wiki Knowledge Server
 
+## Highlights
+
+Wiki knowledge server is perform pipeline to high performance search wiki data.
+
+Pipeline include:
+- Text -> Embedding (Text-to-Vector, GPU) -> Search (Vector Search, GPU) -> Retrieve (Text, URL, Topic) -> Reranking (Re-ranker, GPU) -> Response
+
 ## Features
 
 - End-to-End Search 1M records less than 1 sec.
