@@ -96,11 +96,13 @@ class BatchProcessor:
                 # print(f'Processing batch of size {len(current_batch)}, {len(current_batch_ids)}')
                 embedding_time = time.time()
                 _,current_batch = embedding(current_batch)
-                # print(f'Embedding time: {time.time()-embedding_time} seconds')
+                print(f'Embedding time: {time.time()-embedding_time} seconds')
                 copy_to_device_time = time.time()
                 current_batch = cuda.to_device(current_batch)
-                # print(f'Copy to device time: {time.time()-copy_to_device_time} seconds')
+                print(f'Copy to device time: {time.time()-copy_to_device_time} seconds')
+                search_time = time.time()
                 search_result = search_cuvs_ivf_pq(current_batch)
+                print(f'Search time: {time.time()-search_time} seconds')
                 top_k_indices = batch_rerank(content_list,search_result, current_query, MAX_TOP_K)
                 self.results = search_result
                 self.results_ids = current_batch_ids
@@ -120,7 +122,7 @@ class BatchProcessor:
             result_text_list = []
             result_url_list = []
             result_topic_list = []
-            for k in range(top_k*2):
+            for k in range(MAX_TOP_K):
                 match_index = int(hits[req_idx][k])
                 result_text_list.append(content_list[match_index])
                 result_url_list.append(url_list[match_index])
@@ -133,6 +135,9 @@ class BatchProcessor:
             filtered_result_text_list = [result_text_list[i] for i in top_k_indices]
             filtered_result_url_list = [result_url_list[i] for i in top_k_indices]
             filtered_result_topic_list = [result_topic_list[i] for i in top_k_indices]
+            filtered_result_text_list = filtered_result_text_list[0:top_k]
+            filtered_result_url_list = filtered_result_url_list[0:top_k]
+            filtered_result_topic_list = filtered_result_topic_list[0:top_k]
             # print(f"Time taken to filter: {time.time() - filter_time} seconds")
             return filtered_result_text_list, filtered_result_url_list, filtered_result_topic_list
             # return [], [], []
@@ -150,7 +155,7 @@ async def search(Query: Query):
     top_k = Query.top_k
     if top_k > 20 : 
         top_k = 20
-    await main_batch.add_to_batch([Query.query], query_id, Query.query, )
+    await main_batch.add_to_batch([Query.query], query_id, Query.query, top_k)
     await main_batch.event.wait()
     result_text_list, result_url_list,result_topic_list = await main_batch.get_result(query_id)
     print(f'END SEARCH TIME : {time.time()-embedding_time} seconds')

@@ -55,7 +55,7 @@ def batch_rerank(content_list,search_result,query_list,MAX_TOP_K):
         inputs = reranker_tokenizer(pair_content, padding=True, truncation=True, return_tensors='pt', max_length=2048).to('cuda:0')
         reranker_time = time.time()
         scores = reranker_model(**inputs, return_dict=True).logits.view(-1, ).float()
-        # print(f'Reranker time: {time.time()-reranker_time} seconds')
+        print(f'Reranker time: {time.time()-reranker_time} seconds')
         
 
     
@@ -63,13 +63,13 @@ def batch_rerank(content_list,search_result,query_list,MAX_TOP_K):
     for idx in range(0,len(query_list)):
         top_k_indices = torch.argsort(scores[idx:idx+MAX_TOP_K], descending=True)
         top_k_sorted = torch.cat((top_k_sorted,top_k_indices))
-    # print(f'top_k_sorted: {top_k_sorted.shape}')
+    print(f'top_k_sorted: {top_k_sorted.shape}')
 
     move_back_time = time.time()
     # top_k_sorted = cuda.as_cuda_array(top_k_sorted)
     # top_k_sorted = top_k_sorted.copy_to_host()
     top_k_sorted = top_k_sorted.tolist()
-    # print(f'    Batch Move back time to cpu : {time.time()-move_back_time} seconds')
+    print(f'    Batch Move back time to cpu : {time.time()-move_back_time} seconds')
     reshaped_time = time.time()
     top_k_sorted = np.array(top_k_sorted).reshape(-1,MAX_TOP_K)
     # print(f'    Reshape time : {time.time()-reshaped_time} seconds')
